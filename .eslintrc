@@ -3,6 +3,9 @@
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "rules": {
+    "linebreak-style": "off",
+    "require-jsdoc": "off",
+    "object-curly-spacing": "off"
   },
   "ignorePatterns": [
     "webpack.config.js"
