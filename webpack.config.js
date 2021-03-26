@@ -1,67 +1,76 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const isDev = process.env.NODE_ENV !== 'production';
+const path = require('path');
 
 module.exports = {
-  entry: path.resolve(__dirname, 'src', 'app.ts'),
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: '[name].[hash].js',
-  },
-  module: {
-    rules: [
-      {
-        test: /\.ts?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.(ts|js)$/,
-        exclude: /node_modules/,
-        use: 'eslint-loader',
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: { sourceMap: true },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              sourceMap: true,
-              config: { path: 'postcss.config.js' },
-            },
-          },
-          {
-            loader: 'sass-loader',
-            options: { sourceMap: true },
-          },
-        ],
-      },
-    ],
-  },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].[hash].css',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src', 'public', 'index.html'),
-      favicon: path.resolve(__dirname, 'src', 'public', 'favicon-96x96.png'),
-      title: 'Todo App',
-    }),
-  ],
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    compress: true,
-    port: 3000,
-    hot: true,
-  },
-  devtool: isDev ? 'source-map' : false,
-};
+	mode: "development",
+	devtool: "source-map",
+	entry: "./src/app.ts",
+	output: {
+		filename: 'assets/js/bundle.[hash].js'
+	},
+	resolve: {
+		extensions: ['.ts', '.tsx', '.js', '.scss'],
+	},
+	module: {
+		rules: [
+			{
+				test: /\.ts(x?)$/,
+				exclude: /node_modules/,
+				use: [
+					{
+						loader: 'babel-loader',
+						options: {
+							"presets": ["@babel/preset-env"]
+						}
+					},
+					{
+						loader: "ts-loader",
+					}
+				]
+			},
+			{
+				test: /\.scss$/,
+				use: [
+					process.env === 'production' ?
+						{
+							loader: MiniCssExtractPlugin.loader,
+						} :
+						{
+							loader: 'style-loader',
+						},
+					{
+						loader: 'css-loader',
+						options: {
+							sourceMap: true,
+							importLoaders: 1
+						}
+					},
+					{
+						loader: 'postcss-loader',
+						options: { sourceMap: true, config: { path: 'src/scss/postcss.config.js' } }
+					},
+					{
+						loader: 'sass-loader',
+						options: { sourceMap: true }
+					}
+				]
+			}
+		]
+	},
+	plugins: [
+		new HtmlWebpackPlugin({
+			template: 'src/index.html'
+		}),
+		new MiniCssExtractPlugin({
+			filename: 'assets/css/[name].[hash].css'
+		}),
+		new CleanWebpackPlugin(),
+	],
+	devServer: {
+		port: 8080,
+		hot: true
+	}
+}
